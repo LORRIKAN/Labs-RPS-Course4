@@ -1,22 +1,29 @@
 #pragma once
 #include <functional>
 #include <string>
+#include <tuple>
 
 namespace Lab1 {
 
 	namespace Menu {
 
 		template <class FuncResultType, class... FuncInputTypes>
-		class MenuItem {
+		struct MenuItem {
 
-		};
+			using MenuItemBindedFunction = std::function<FuncResultType(FuncInputTypes...)>;
 
-		template <class FuncResultType, class... FuncInputTypes>
-		class MenuItem<FuncResultType(FuncInputTypes...)> {
-		public:
-			MenuItem(const std::function<FuncResultType(FuncInputTypes)>& bindedFunction,
-				const long& bindedFunction, const std::string& bindedFunction) :
-				bindedFunction(bindedFunction), itemIndex(itemIndex), itemText(itemText)
+			using BindedFunctionCallbackFunction = std::function<void(FuncResultType)>;
+
+			MenuItem(const MenuItemBindedFunction& bindedFunction, 
+				const BindedFunctionCallbackFunction& callbackFunction,
+				const long& itemIndex,
+				const std::string& itemText,
+				const std::tuple<FuncInputTypes...> bindedFunctionArgs) :
+				bindedFunction(bindedFunction), 
+				callbackFunction(callbackFunction),
+				itemIndex(itemIndex), 
+				itemText(itemText),
+				bindedFunctionArgs(bindedFunctionArgs)
 			{
 
 			}
@@ -25,11 +32,21 @@ namespace Lab1 {
 				out << menuItem.itemIndex << ". " << menuItem.itemText;
 			}
 
-			const std::function<FuncRetType(FuncInputTypes)>& bindedFunction;
+			void CallBindedFunctionWithCallback() {
+				callbackFunction(bindedFunction(bindedFunctionArgs));
+			}
 
 			const long& itemIndex;
 
 			const std::string& itemText;
+
+		private:
+
+			const std::tuple<FuncInputTypes...> bindedFunctionArgs;
+
+			const MenuItemBindedFunction& bindedFunction;
+
+			const BindedFunctionCallbackFunction& callbackFunction;
 		};
 	}
 }
